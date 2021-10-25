@@ -15,8 +15,8 @@ def LM(grad, x, parameters, residual, lr):
     a = np.matmul(J, J.transpose()) + lr * np.identity(np.shape(J)[0])
     return np.matmul(np.linalg.inv(a), np.matmul(-J, residual)).transpose()
 
-def optimize(obj, grad, x, y, updateFunc=gradDescent, pltTitle='Gradient Descent', init=[10, 13, 19.12], lr=0.01, tolerance=1e-5, iterNum=200):
-    parameters = np.reshape(init, (1, -1))
+def optimize(obj, grad, x, y, updateFunc=gradDescent, pltTitle='Gradient Descent', init=[1, 1, 1, 1, 1], lr=0.1, tolerance=1e-5, iterNum=500):
+    parameters = np.reshape(init, (1, -1)).astype(np.float64)
     lastIter = iterNum
     lossHis = []
 
@@ -34,29 +34,22 @@ def optimize(obj, grad, x, y, updateFunc=gradDescent, pltTitle='Gradient Descent
     plt.title('Loss vs Number of Iterations for ' + pltTitle)
     return parameters[0]
 
-def gaussian_grad(x, a, mean, std):
-    Ja = np.exp(-(x - mean) ** 2 / (2 * std ** 2))
-    Jm = a * (x - mean) * np.exp(-(x - mean) ** 2 / (2 * std ** 2)) / (std ** 2)
-    Js = a * ((x - mean) ** 2) * np.exp(-(x - mean) ** 2 / (2 * std ** 2)) / (std ** 3)
-    return np.vstack((Ja, Jm, Js))
+def grad(x, p1, p2, p3, p4, p5):
+    Jp1 = np.ones(x.shape)
+    Jp2 = np.power(x, 1)
+    Jp3 = np.power(x, 2)
+    Jp4 = np.power(x, 3)
+    Jp5 = np.power(x, 4) 
+    return np.vstack((Jp1, Jp2, Jp3, Jp4, Jp5))
 
-def make_gaussian(x, a, mean, std):
-    y = a * np.exp(-(x-mean)**2/(2*std**2))
+def obj(x, p1, p2, p3, p4, p5):
+    y = p5 * np.power(x, 4) + p4 * np.power(x, 3) + p3 * np.power(x, 2) + p2 * np.power(x, 1) + p1 * np.power(x, 0)
     return y
 
-gt = [10, 0, 20]
-obsNum = 50
-x = np.linspace(-25, 25, obsNum)
-y = make_gaussian(x, *gt)
-predsGD = make_gaussian(x, *optimize(make_gaussian, gaussian_grad, x, y))
-predsGN = make_gaussian(x, *optimize(make_gaussian, gaussian_grad, x, y, gaussNewton, 'Gauss-Newton'))
-predsLM = make_gaussian(x, *optimize(make_gaussian, gaussian_grad, x, y, LM, 'LM', lr=1))
+def gradNext(seq):
+    x = np.array(range(1, len(seq) + 1))
+    predsGD = obj(len(seq) + 1, *optimize(obj, grad, x, seq))
+    predsGN = obj(len(seq) + 1, *optimize(obj, grad, x, seq, gaussNewton, 'Gauss-Newton'))
+    predsLM = obj(len(seq) + 1, *optimize(obj, grad, x, seq, LM, 'LM'))
 
-plt.figure()
-plt.plot(x, y, '-o', label='Ground Truth')
-plt.plot(x, predsGD, '-o', label='Gradient Descent')
-plt.plot(x, predsGN, '-o', label='Gauss-Newton')
-plt.plot(x, predsLM, '-o', label='LM')
-plt.title('Predicted vs GT Gaussians by Gradient Descent')
-plt.legend()
-plt.show()
+    return predsGN
