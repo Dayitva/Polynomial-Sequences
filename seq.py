@@ -1,4 +1,5 @@
-from math import comb
+from math import comb, isnan
+from gradientDescent import *
 
 def calc_differences(seq):
     seq_list = [seq]
@@ -43,6 +44,7 @@ if __name__ == "__main__":
     n = len(sequence)
     
     found, seq_list = calc_differences(sequence)
+    pred = gradNext(sequence)
 
     if found:
         length = len(seq_list)
@@ -59,3 +61,6 @@ if __name__ == "__main__":
         print("2. The sequence provided is not polynomial.")
         print("3. The sequence provided has a degree higher than 5.")
         print("If your sequence generator has a degree of n, please provide atleast n+2 terms.")
+
+    if not isnan(pred):
+        print("As per gradient descent, {} comes next".format(pred))
