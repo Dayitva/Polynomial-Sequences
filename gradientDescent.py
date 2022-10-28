@@ -16,7 +16,7 @@ def LM(grad, x, parameters, residual, lr):
     return np.matmul(np.linalg.inv(a), np.matmul(-J, residual)).transpose()
 
 def optimize(obj, grad, x, y, updateFunc=gradDescent, pltTitle='Gradient Descent', init=[1, 1, 1, 1, 1], lr=0.1, tolerance=1e-5, iterNum=500):
-    parameters = np.reshape(init, (1, -1)).astype(np.float64)
+    parameters = np.reshape(init, (1, -1)).astype(np.float128)
     lastIter = iterNum
     lossHis = []
 
